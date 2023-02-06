@@ -137,7 +137,26 @@ async function run() {
         });
 
 
+        // Likes & add a comment to a post API.
+        app.post('/posts/:id/like', (req, res) => {
+            const { id } = req.params;
+            const post = posts.find(p => p.id === parseInt(id));
+            if (!post) return res.status(404).send('Post not found');
 
+            post.likes += 1;
+            res.send(post);
+        });
+
+        app.post('/posts/:id/comment', (req, res) => {
+            const { id } = req.params;
+            const post = posts.find(p => p.id === parseInt(id));
+            if (!post) return res.status(404).send('Post not found');
+
+            const comment = req.body;
+            comment.id = post.comments.length + 1;
+            post.comments.push(comment);
+            res.send(post);
+        });
     }
     finally {
 
