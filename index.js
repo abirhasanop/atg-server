@@ -87,6 +87,22 @@ async function run() {
             }
         });
 
+        app.post('/reset/:token', async (req, res) => {
+            try {
+                const { token } = req.params;
+                const { password } = req.body;
+                const user = users.find(u => u.resetPasswordToken === token);
+                if (!user) return res.status(400).send('Password reset token is invalid or has expired');
+
+                user.password = password;
+                user.resetPasswordToken = undefined;
+                user.resetPasswordExpires = undefined;
+                res.send('Password reset successful');
+            } catch (error) {
+                res.status(500).send(error.message);
+            }
+        });
+
 
     }
     finally {
