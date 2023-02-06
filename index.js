@@ -31,6 +31,22 @@ async function run() {
         });
 
 
+        // User Login using username and password
+        app.post('/login', async (req, res) => {
+            try {
+                const { username, password } = req.body;
+                const user = users.find(u => u.username === username);
+                if (!user) return res.status(400).send('Username or password is incorrect');
+
+                const isPasswordMatch = await bcrypt.compare(password, user.password);
+                if (!isPasswordMatch) return res.status(400).send('Username or password is incorrect');
+
+                res.send('Login successful');
+            } catch (error) {
+                res.status(500).send(error.message);
+            }
+        });
+
 
     }
     finally {
