@@ -47,6 +47,46 @@ async function run() {
             }
         });
 
+        // Forget User password API
+        app.post('/forgot-password', async (req, res) => {
+            try {
+                const { email } = req.body;
+                const user = users.find(u => u.email === email);
+                if (!user) return res.status(400).send('Email address not found');
+
+                // Generate a token
+                const token = crypto.randomBytes(20).toString('hex');
+                user.resetPasswordToken = token;
+                user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+
+                // Send reset password email
+                const transporter = nodemailer.createTransport({
+                    host: 'smtp.example.com',
+                    port: 587,
+                    secure: false,
+                    auth: {
+                        user: 'email@example.com',
+                        pass: 'password'
+                    }
+                });
+
+                const mailOptions = {
+                    from: 'email@example.com',
+                    to: email,
+                    subject: 'Password Reset',
+                    text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
+        Please click on the following link, or paste this into your browser to complete the process:\n\n
+        http://localhost:3000/reset/${token}\n\n
+        If you did not request this, please ignore this email and your password will remain unchanged.\n`
+                };
+
+                await transporter.sendMail(mailOptions);
+                res.send('Reset password email sent');
+            } catch (error) {
+                res.status(500).send(error.message);
+            }
+        });
+
 
     }
     finally {
