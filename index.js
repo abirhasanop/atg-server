@@ -103,6 +103,40 @@ async function run() {
             }
         });
 
+        // CRUD operation for posting social media posts.
+        app.get('/posts', (req, res) => {
+            res.send(posts);
+        });
+
+        app.post('/posts', (req, res) => {
+            const post = req.body;
+            post.id = posts.length + 1;
+            post.likes = 0;
+            post.comments = [];
+            posts.push(post);
+            res.send(post);
+        });
+
+        app.put('/posts/:id', (req, res) => {
+            const { id } = req.params;
+            const post = posts.find(p => p.id === parseInt(id));
+            if (!post) return res.status(404).send('The post with the given ID was not found');
+
+            const updatedPost = req.body;
+            Object.assign(post, updatedPost);
+            res.send(post);
+        });
+
+        app.delete('/posts/:id', (req, res) => {
+            const { id } = req.params;
+            const postIndex = posts.findIndex(p => p.id === parseInt(id));
+            if (postIndex === -1) return res.status(404).send('The post with the given ID was not found');
+
+            const post = posts.splice(postIndex, 1);
+            res.send(post);
+        });
+
+
 
     }
     finally {
